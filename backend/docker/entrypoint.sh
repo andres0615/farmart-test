@@ -11,6 +11,8 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+php artisan jwt:secret
+
 # Solo un contenedor debe migrar (RUN_MIGRATIONS=true). Seeders idempotentes.
 if [ "$RUN_MIGRATIONS" = "true" ]; then
   php artisan migrate --force

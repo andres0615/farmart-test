@@ -47,6 +47,7 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_BASE_URL: ${LLM_BASE_URL:-}
+      JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET en .env raíz}
     depends_on:
       db:
         condition: service_healthy

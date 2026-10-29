@@ -2,7 +2,7 @@
 
 ## Estructura
 
-- Aplicación backend en `backend/`: Laravel 11, PHP `^8.2` (Docker usa 8.3). Sin `routes/api.php` ni Sanctum; solo `/` y health `/up`.
+- Aplicación backend en `backend/`: Laravel 11, PHP `^8.2` (Docker usa 8.3). `routes/api.php` registrado en `bootstrap/app.php` con `/api/login`, `/api/logout`, `/api/refresh` y `/api/me`; sin Sanctum; health `/up`.
 - Frontend en `frontend/`: React 19 + TypeScript + Vite 8 (plantilla base). Sin router, sin state manager, sin tests y sin llamadas a API.
 - La raíz solo orquesta Docker. `README.md`, `AI_USAGE.md`, `docs/DEPLOY.md`, `docs/openapi.yaml`, `.github/workflows/ci.yml` y `.env.example` raíz están vacíos (0 bytes).
 - `.opencode/` está ignorado por git; su `react-dev.md` asume JS/JSX, pero el frontend real es TS/TSX.
