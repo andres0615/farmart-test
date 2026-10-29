@@ -44,6 +44,13 @@ docker compose up --build
 - Compose construye PostgreSQL 16 + `backend` (target por defecto `app`) + `frontend` (target `app`).
 - `backend/.env` local usa SQLite; Compose sobreescribe a PostgreSQL. Los tests usan la DB de `backend/.env`.
 
+## Restricciones para agentes
+
+- Los agentes **nunca** ejecutan comandos `git`, ni siquiera de solo lectura (`git status`, `git log`, `git diff`, `git show`, `git add`, `git commit`, `git push`, etc.). Están reservados al humano.
+- Los agentes **nunca** ejecutan comandos del ecosistema Node: `node`, `npm`, `npx`, `pnpm` o `yarn` (incluye `install`, `run dev`, `run build`, `run lint`, `run preview`). Están reservados al humano.
+- La lista de comandos de arriba es documentación para ejecución manual; no es autorización para que un agente los corra.
+- `composer dev` también queda prohibido para agentes porque lanza Vite/`npm`.
+
 ## Gotchas
 
 - `backend/Dockerfile` valida `/health`, pero Laravel expone `/up`. Compose sobreescribe el healthcheck de `api` a `/up`, así que solo afecta a ejecuciones directas de la imagen.
@@ -58,5 +65,6 @@ docker compose up --build
 
 ## Git
 
-- El backend está trackeado; el frontend nuevo sigue mayormente untracked y `docker-compose.yml`/`frontend/Dockerfile` tienen cambios locales. Haz `git add` selectivo.
+- Los agentes no ejecutan comandos git (ver Restricciones para agentes); solo el humano.
+- El backend está trackeado; el frontend nuevo sigue mayormente untracked y `docker-compose.yml`/`frontend/Dockerfile` tienen cambios locales.
 - Nunca agregues `.env`, `backend/vendor/`, `backend/node_modules/`, `frontend/node_modules/` ni `backend/database/database.sqlite`.
