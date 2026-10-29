@@ -6,7 +6,7 @@ type LoginCredentials = { email: string; password: string };
 
 interface AuthContextValue {
   user: User | null;
-  login: (credentials: LoginCredentials) => Promise<{ access_token: string }>;
+  login: (credentials: LoginCredentials) => Promise<any>;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -28,9 +28,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = async () => {
     try {
-      const data = await apiClient<User>('/me',{
-        method: 'POST',
-      });
+      const response = await apiClient('/me', { method: 'POST' });
+      if (!response.ok) throw new Error('No autorizado');
+      const data: User = await response.json();
       setUser(data);
     } catch {
       localStorage.removeItem('access_token');
