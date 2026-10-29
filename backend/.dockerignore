@@ -1,0 +1,13 @@
+# Dependencias y artefactos generados en el host
+/vendor
+/node_modules
+/bootstrap/cache
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/public/build
+/public/hot
+
+
+**/*:Zone.Identifier

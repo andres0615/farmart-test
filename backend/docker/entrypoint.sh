@@ -14,7 +14,7 @@ php artisan view:cache
 # Solo un contenedor debe migrar (RUN_MIGRATIONS=true). Seeders idempotentes.
 if [ "$RUN_MIGRATIONS" = "true" ]; then
   php artisan migrate --force
-  php artisan db:seed --force
+  # php artisan db:seed --force
 fi
 
 exec "$@"
