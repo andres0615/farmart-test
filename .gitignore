@@ -57,6 +57,7 @@ docker-compose.override.yml
 /tmp/
 .cache/
 .nyc_output/
+otros/
 
 # =========================================
 # Testing y cobertura
@@ -86,3 +87,4 @@ $RECYCLE.BIN/
 # Configuración local de opencode
 # =========================================
 .opencode/
+.agents/

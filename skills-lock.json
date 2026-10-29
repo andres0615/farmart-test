@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "react-expert": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-expert/SKILL.md",
+      "computedHash": "0bfa97803586ba1b228c23abcc4cc98069127cc537ac92ed3302ed5ca6236fc7"
+    }
+  }
+}

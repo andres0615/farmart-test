@@ -53,7 +53,7 @@ services:
     ports:
       - "${API_PORT:-8000}:8080"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/up"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -66,22 +66,25 @@ services:
   # ------------------------------------------------------------
   # Frontend React (build de Vite servido por Nginx, puerto 8080)
   # ------------------------------------------------------------
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     args:
-  #       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
-  #   restart: unless-stopped
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
-  #   ports:
-  #     - "${FRONTEND_PORT:-3000}:8080"
-  #   healthcheck:
-  #     test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  frontend:
+    build:
+      context: ./frontend
+      target: app
+      args:
+        # Se incrusta en el bundle: debe ser accesible desde el navegador
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   pgdata:
