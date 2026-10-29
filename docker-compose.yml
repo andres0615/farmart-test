@@ -1,0 +1,85 @@
+services:
+  # ------------------------------------------------------------
+  # Base de datos: PostgreSQL 16 con volumen persistente
+  # ------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # - ./db/init:/docker-entrypoint-initdb.d:ro   # solo si usas scripts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ------------------------------------------------------------
+  # API Laravel (PHP-FPM + Nginx, usuario no root, puerto 8080)
+  # ------------------------------------------------------------
+  api:
+    build:
+      context: ./backend
+      target: app
+    restart: unless-stopped
+    environment:
+      APP_NAME: ${APP_NAME:-FARTMAR}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      APP_KEY: ${APP_KEY:?Define APP_KEY en el archivo .env}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8000}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s   # margen para migraciones y seeders
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ------------------------------------------------------------
+  # Frontend React (build de Vite servido por Nginx, puerto 8080)
+  # ------------------------------------------------------------
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     args:
+  #       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
+  #   restart: unless-stopped
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
+  #   ports:
+  #     - "${FRONTEND_PORT:-3000}:8080"
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+volumes:
+  pgdata:
