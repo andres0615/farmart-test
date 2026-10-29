@@ -12,7 +12,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login(form);
-      navigate('/products');
+      navigate('/patient');
     } catch {
       setError('Credenciales inválidas');
     }

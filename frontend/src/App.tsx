@@ -8,6 +8,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import AuthGuard from '@/components/guards/AuthGuard';
 import GuestGuard from '@/components/guards/GuestGuard';
 import LoginPage from '@/modules/auth/pages/LoginPage';
+import PatientListPage from '@/modules/patient/pages/PatientListPage';
 
 function App() {
   return (
@@ -19,8 +20,8 @@ function App() {
             {/* <Route element={<AuthGuard />}> */}
               {/* Paginas con el layout de admin */}
               <Route element={<LayoutAdmin />}>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                {/* <Route path="/patient" element={<PatientListPage />} /> */}
+                <Route path="/" element={<Navigate to="/patient" replace />} />
+                <Route path="/patient" element={<PatientListPage />} />
               </Route>
             {/* </Route> */}
 

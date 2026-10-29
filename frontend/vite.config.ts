@@ -14,4 +14,14 @@ export default defineConfig({
     },
   },
   plugins: [tailwindcss(), react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://api:8080',
+        changeOrigin: true,
+      },
+    },
+    host: true, // escucha en todas las interfaces, no solo localhost
+    allowedHosts: true,
+  },
 })
