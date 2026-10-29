@@ -16,18 +16,18 @@ function App() {
         <ToastProvider>
           <Routes>
             {/* Rutas protegidas por auth */}
-            <Route element={<AuthGuard />}>
+            {/* <Route element={<AuthGuard />}> */}
               {/* Paginas con el layout de admin */}
               <Route element={<LayoutAdmin />}>
-                <Route path="/" element={<Navigate to="/products" replace />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 {/* <Route path="/patient" element={<PatientListPage />} /> */}
               </Route>
-            </Route>
+            {/* </Route> */}
 
             {/* Rutas públicas */}
-            <Route element={<GuestGuard />}>
+            {/* <Route element={<GuestGuard />}> */}
               <Route path="/login" element={<LoginPage />} />
-            </Route>
+            {/* </Route> */}
           </Routes>
           {/* Componente que muestra los notificaciones en la esquina inferior derecha */}
           <Toast />
