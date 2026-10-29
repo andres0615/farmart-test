@@ -1,0 +1,14 @@
+# ------------------------------------------------------------
+# Override de desarrollo: frontend con Vite (HMR) en el puerto 5173.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# ------------------------------------------------------------
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules

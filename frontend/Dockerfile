@@ -20,7 +20,14 @@ COPY . .
 RUN npm run build
 
 # ------------------------------------------------------------
-# Etapa 3: runtime con Nginx sin privilegios (usuario no root, puerto 8080)
+# Etapa 3: desarrollo (Vite con HMR, sin compilar)
+# ------------------------------------------------------------
+FROM deps AS dev
+COPY . .
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+
+# ------------------------------------------------------------
+# Etapa 4: runtime con Nginx sin privilegios (usuario no root, puerto 8080)
 # ------------------------------------------------------------
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS app
 
