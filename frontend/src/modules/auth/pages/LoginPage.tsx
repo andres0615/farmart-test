@@ -5,15 +5,16 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login } = useAuth()!;
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       await login(form);
       navigate('/patient');
-    } catch {
+    } catch (error: any){
+      console.log(error.message);
       setError('Credenciales inválidas');
     }
   };
