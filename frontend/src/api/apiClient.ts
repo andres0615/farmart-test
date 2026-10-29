@@ -54,6 +54,7 @@ async function apiClient(
   endpoint: string,
   options: ApiClientOptions = {},
   retry = true,
+  login = false
 ): Promise<Response> {
   const token = localStorage.getItem('access_token');
 
@@ -74,7 +75,7 @@ async function apiClient(
   const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
   // Si el token expiró y aún no hemos reintentado
-  if (response.status === 401 && retry) {
+  if (response.status === 401 && retry && !login) {
     if (!isRefreshing) {
       isRefreshing = true;
       try {
@@ -86,7 +87,7 @@ async function apiClient(
       } catch (err) {
         isRefreshing = false;
         localStorage.removeItem('access_token');
-        // window.location.href = '/login';
+        window.location.href = '/login';
         throw err;
       }
     }

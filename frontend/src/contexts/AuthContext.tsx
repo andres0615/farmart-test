@@ -44,8 +44,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await apiClient('/login', {
       method: 'POST',
       body: credentials,
-    });
+    }, true, true);
     if (!response) throw new Error('Respuesta inválida del servidor');
+
+    console.log(response);
+
+    // Solo un 200 se considera login exitoso; el resto se propaga como error
+    if (response.status !== 200) {
+      throw new Error(
+        response.status === 401 ? 'Credenciales inválidas' : 'Error al iniciar sesión',
+      );
+    }
 
     const { access_token, expires_in, token_type } = await response.json();
     
