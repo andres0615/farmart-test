@@ -303,7 +303,7 @@ export default function DispensationForm({ onCreated }: DispensationFormProps) {
                     </tr>
                   ) : (
                     preview.items.map((item) => {
-                      const allocated = item.allocations.reduce(
+                      const available = item.allocations.reduce(
                         (total, allocation) => total + allocation.take,
                         0,
                       );
@@ -332,20 +332,15 @@ export default function DispensationForm({ onCreated }: DispensationFormProps) {
                                       vence {formatDate(allocation.expires_on)}
                                     </span>
                                     <span className="tabular-nums">
-                                      toma {allocation.take} de {allocation.available}
+                                      toma {allocation.take}
                                     </span>
-                                    {allocation.take >= allocation.available && (
-                                      <span className="badge badge-warning badge-xs">
-                                        agota el lote
-                                      </span>
-                                    )}
                                   </li>
                                 ))}
                               </ul>
                             )}
-                            {item.remaining > allocated && (
+                            {item.remaining > available && (
                               <p className="text-warning text-xs mt-1">
-                                Solo hay {allocated} disponibles; la dispensación quedará parcial.
+                                Solo hay {available} disponibles; la dispensación quedará parcial.
                               </p>
                             )}
                           </td>
@@ -353,7 +348,7 @@ export default function DispensationForm({ onCreated }: DispensationFormProps) {
                             <input
                               type="number"
                               min={0}
-                              max={Math.min(item.remaining, allocated)}
+                              max={Math.min(item.remaining, available)}
                               step={1}
                               className="input input-sm w-24 tabular-nums"
                               value={quantity}
