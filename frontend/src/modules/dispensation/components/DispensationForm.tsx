@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import {
   DispensationApiError,
@@ -6,8 +6,10 @@ import {
   createIdempotencyKey,
   previewDispensation,
 } from '@/services/dispensationService';
+import { fetchWarehouses } from '@/services/warehouseService';
 import { useToast } from '@/components/toast/ToastContext';
 import type { DispensationPreview } from '@/types/dispensation';
+import type { DispensationWarehouse } from '@/types/warehouse';
 import { formatDate } from '../utils/format';
 
 interface DispensationFormProps {
@@ -50,6 +52,26 @@ export default function DispensationForm({ onCreated }: DispensationFormProps) {
   const [previewing, setPreviewing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warehouses, setWarehouses] = useState<DispensationWarehouse[]>([]);
+  const [warehousesLoading, setWarehousesLoading] = useState(true);
+
+  // Carga el catálogo de bodegas al abrir el formulario
+  useEffect(() => {
+    async function loadWarehouses() {
+      try {
+        setWarehouses(await fetchWarehouses());
+      } catch (err) {
+        setError(toMessage(err));
+      } finally {
+        setWarehousesLoading(false);
+      }
+    }
+
+    void loadWarehouses();
+  }, []);
+
+  // Se usa en el select y en el mensaje de vacío
+  const warehousesEmpty = !warehousesLoading && warehouses.length === 0;
 
   // Se mantiene estable durante los reintentos de la misma solicitud (RN-09)
   const idempotencyKey = useRef<string>(createIdempotencyKey());
@@ -220,21 +242,32 @@ export default function DispensationForm({ onCreated }: DispensationFormProps) {
               />
             </label>
 
-            <label className="floating-label">
-              <span>Bodega</span>
-              <input
-                type="number"
-                min={1}
-                step={1}
-                inputMode="numeric"
-                placeholder="ID de bodega"
-                className="input input-md w-full"
-                value={warehouseId}
-                onChange={(event) => handleWarehouseChange(event.target.value)}
-                disabled={submitting}
-                required
-              />
-            </label>
+            <div>
+              <label className="floating-label">
+                <span>Bodega</span>
+                <select
+                  className="select select-md w-full"
+                  value={warehouseId}
+                  onChange={(event) => handleWarehouseChange(event.target.value)}
+                  disabled={submitting || warehousesLoading || warehousesEmpty}
+                  required
+                >
+                  <option value="" disabled>
+                    {warehousesLoading ? 'Cargando bodegas…' : 'Selecciona una bodega'}
+                  </option>
+                  {warehouses.map((warehouse) => (
+                    <option key={warehouse.id} value={warehouse.id}>
+                      {warehouse.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {warehousesEmpty && (
+                <p role="status" className="text-xs text-error mt-1">
+                  No hay bodegas disponibles.
+                </p>
+              )}
+            </div>
 
             {preview?.requires_authorization && (
               <label className="floating-label">
