@@ -22,6 +22,13 @@ Levantar los contenedores:
 docker compose up --build
 ```
 
+## Acceso a la aplicación
+
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://localhost:3000 |
+| API (backend) | http://localhost:8000/api |
+
 ## Modulos
 
 ### Dispensaciones
