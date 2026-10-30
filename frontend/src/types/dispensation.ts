@@ -99,7 +99,7 @@ export interface Dispensation {
   items_count?: number;
 }
 
-export interface PreviewDispensationPayload {
+export type PreviewDispensationPayload = {
   prescription_id: number;
   warehouse_id: number;
 }
@@ -109,7 +109,7 @@ export interface CreateDispensationItemPayload {
   quantity: number;
 }
 
-export interface CreateDispensationPayload {
+export type CreateDispensationPayload = {
   prescription_id: number;
   warehouse_id: number;
   items: CreateDispensationItemPayload[];
