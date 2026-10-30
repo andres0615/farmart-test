@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -39,6 +40,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Asigna un rol al usuario. Si no se indica, crea uno nuevo.
+     */
+    public function withRole(?Role $role = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => $role?->id ?? Role::factory()->create()->id,
         ]);
     }
 }

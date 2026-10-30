@@ -16,6 +16,7 @@ php artisan jwt:secret
 if [ "$RUN_MIGRATIONS" = "true" ]; then
   php artisan migrate --force
   # php artisan db:seed --force
+  php artisan db:seed --class=SetupSeeder --force
 fi
 
 exec "$@"
