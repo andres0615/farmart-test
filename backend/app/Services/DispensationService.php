@@ -23,6 +23,10 @@ class DispensationService
      */
     public function preview(Prescription $prescription, Warehouse $warehouse): array
     {
+        // Vista previa: NO guarda nada. Solo calcula qué lotes se usarían en cada
+        // medicamento, para que el usuario revise antes de confirmar la dispensación.
+        // Fecha de hoy como texto "AAAA-MM-DD" (sin horas), para poder compararla
+        // con `valid_until`, que también es una fecha sin hora.
         $today = now()->toDateString();
 
         // Verificar si la prescripción está vigente
@@ -30,37 +34,61 @@ class DispensationService
             throw new PrescriptionExpiredException();
         }
 
+        // Se extraen dos listas de la receta:
+        // - `$itemIds`: el id de cada línea de la receta.
+        // - `$productIds`: los productos sin repetir, para buscar su stock una sola vez.
+        // Ojo: este método asume que quien llama ya cargó `items.product`
+        // (eager loading); si no, cada ítem haría una consulta extra.
         $items = $prescription->items;
         $itemIds = $items->pluck('id')->all();
         $productIds = $items->pluck('product_id')->unique()->values()->all();
 
         // Total dispensado por ítem de prescripción (todas las bodegas).
+        // `$dispensed` es un diccionario "id de línea => unidades ya dispensadas".
         $dispensed = $this->remainingByItem($itemIds);
 
         // Stock disponible en la bodega, ordenado por FEFO.
+        // `allocateFefo()` devuelve dos listas y esta sintaxis guarda cada una en su
+        // variable: `$validStock` (lotes que sí se pueden usar) y `$expiredCounts`
+        // (cuántos lotes vencidos se encontraron por producto).
         ['valid' => $validStock, 'expired' => $expiredCounts] = $this->allocateFefo($warehouse->id, $productIds);
 
+        // Acumuladores del resultado: el detalle por ítem y una bandera que se
+        // encenderá si algún medicamento especial requiere autorización.
         $previewItems = [];
         $requiresAuthorization = false;
 
+        // Se procesa cada línea de la receta para armar su parte del preview.
         foreach ($items as $item) {
+            // Tres cantidades por ítem: lo recetado, lo ya dispensado y lo que falta.
+            // `max(0, ...)` evita que lo pendiente quede en negativo por datos viejos.
             $prescribed = (int) $item->quantity;
             $alreadyDispensed = (int) ($dispensed[$item->id] ?? 0);
             $remaining = max(0, $prescribed - $alreadyDispensed);
 
+            // Variables de trabajo del ítem:
+            // - `$allocations`: lotes elegidos para este ítem.
+            // - `$availableTotal`: suma del stock usable del producto.
+            // - `$pending`: lo que aún falta asignar al recorrer los lotes.
             $allocations = [];
             $availableTotal = 0;
             $pending = $remaining;
 
+            // Se recorren los lotes del producto ya ordenados por FEFO (vence primero)
+            // y se van asignando unidades hasta cubrir lo pendiente.
             foreach ($validStock[$item->product_id] ?? [] as $batch) {
+                // Se suma el stock usable de todos los lotes, aunque no se vaya a usar todo.
                 $availableTotal += $batch['available'];
 
                 if ($pending <= 0) {
+                    // Ya no hace falta asignar más, pero se sigue sumando stock para el aviso.
                     continue;
                 }
 
+                // Se toma lo máximo posible sin pasarse de lo que falta ni de lo disponible.
                 $take = min($batch['available'], $pending);
 
+                // Se registra esta asignación parcial: de qué lote y cuántas unidades.
                 $allocations[] = [
                     'batch_id' => $batch['batch_id'],
                     'batch_code' => $batch['batch_code'],
@@ -69,25 +97,32 @@ class DispensationService
                     'take' => $take,
                 ];
 
+                // Se descuenta lo asignado; cuando llega a 0, ya no se toma de más lotes.
                 $pending -= $take;
             }
 
+            // Avisos que se mostrarán al usuario sobre este ítem (sin bloquear el preview).
             $warnings = [];
 
+            // Si el stock no alcanza para lo pendiente, se indica cuántas unidades faltan.
             if ($remaining > $availableTotal) {
                 $missing = $remaining - $availableTotal;
                 $warnings[] = "Stock insuficiente: faltan {$missing} unidades.";
             }
 
+            // Los lotes vencidos no se usan, pero se avisa cuántos se ignoraron.
             $expired = (int) ($expiredCounts[$item->product_id] ?? 0);
             if ($expired > 0) {
                 $warnings[] = "Hay {$expired} lote(s) vencido(s) ignorado(s).";
             }
 
+            // Un medicamento especial pendiente obligará a pedir autorización al
+            // confirmar la dispensación (basta con que haya uno).
             if ($remaining > 0 && $item->product->is_special) {
                 $requiresAuthorization = true;
             }
 
+            // Se agrega el ítem ya procesado a la lista del resultado.
             $previewItems[] = [
                 'prescription_item_id' => (int) $item->id,
                 'product' => [
@@ -103,6 +138,8 @@ class DispensationService
             ];
         }
 
+        // Respuesta final: datos de la receta, la bodega, el detalle por ítem y la
+        // bandera que indica si hace falta autorización.
         return [
             'prescription' => [
                 'id' => $prescription->id,
