@@ -32,7 +32,7 @@ services:
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
       APP_URL: ${APP_URL:-http://localhost:8000}
-      APP_KEY: ${APP_KEY:?Define APP_KEY en el archivo .env}
+      # APP_KEY: ${APP_KEY:?Define APP_KEY en el archivo .env}
       LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       DB_CONNECTION: pgsql
@@ -47,7 +47,7 @@ services:
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_BASE_URL: ${LLM_BASE_URL:-}
-      JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET en .env raíz}
+      # JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET en .env raíz}
     depends_on:
       db:
         condition: service_healthy
