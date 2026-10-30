@@ -9,6 +9,9 @@ import AuthGuard from '@/components/guards/AuthGuard';
 import GuestGuard from '@/components/guards/GuestGuard';
 import LoginPage from '@/modules/auth/pages/LoginPage';
 import PatientListPage from '@/modules/patient/pages/PatientListPage';
+import DispensationListPage from '@/modules/dispensation/pages/DispensationListPage'
+import DispensationCreatePage from '@/modules/dispensation/pages/DispensationCreatePage'
+import DispensationDetailPage from '@/modules/dispensation/pages/DispensationDetailPage'
 
 function App() {
   return (
@@ -20,8 +23,11 @@ function App() {
             <Route element={<AuthGuard />}>
               {/* Paginas con el layout de admin */}
               <Route element={<LayoutAdmin />}>
-                <Route path="/" element={<Navigate to="/patient" replace />} />
-                <Route path="/patient" element={<PatientListPage />} />
+                <Route path="/" element={<Navigate to="/dispensation" replace />} />
+                {/* <Route path="/patient" element={<PatientListPage />} /> */}
+                <Route path="/dispensation" element={<DispensationListPage />} />
+                <Route path="/dispensation/create" element={<DispensationCreatePage />} />
+                <Route path="/dispensation/:id" element={<DispensationDetailPage />} />
               </Route>
             </Route>
 

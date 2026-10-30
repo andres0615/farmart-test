@@ -49,6 +49,9 @@ Route::middleware('auth:api')->group(function () {
 
     // Dispensations
     Route::get('/dispensations', [DispensationController::class, 'index']);
+    Route::post('/dispensations/preview', [DispensationController::class, 'preview']);
+    Route::get('/dispensations/{id}', [DispensationController::class, 'show'])
+        ->whereNumber('id');
     Route::get('/dispensation-items', [DispensationItemController::class, 'index']);
 
     // Transfers

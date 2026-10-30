@@ -12,7 +12,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login(form);
-      navigate('/patient');
+      navigate('/dispensation');
     } catch (error: any){
       console.log(error.message);
       setError('Credenciales inválidas');

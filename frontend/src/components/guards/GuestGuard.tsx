@@ -8,7 +8,7 @@ export default function GuestGuard() {
   const { user, loading } = auth;
 
   if (loading) return <div>Cargando...</div>;
-  if (user) return <Navigate to="/patient" replace />;
+  if (user) return <Navigate to="/dispensation" replace />;
 
   return <Outlet />;
 }
