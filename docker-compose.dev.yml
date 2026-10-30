@@ -12,3 +12,20 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+  api:
+    build:
+      context: ./backend
+      target: dev
+    volumes:
+      - ./backend:/var/www/html
+      - /var/www/html/vendor
+      - backend-storage:/var/www/html/storage
+      - backend-cache:/var/www/html/bootstrap/cache
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+
+volumes:
+  backend-storage:
+  backend-cache:
